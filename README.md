@@ -1,9 +1,7 @@
----
-
 # Lab 00 A — [Testing fundamentals]
 
 ![CI](https://github.com/filipewdev/lab-00a-testing-fundamentals/actions/workflows/ci.yml/badge.svg)
-[![Coverage](https://img.shields.io/badge/coverage-XX%25-brightgreen)](#tests)
+[![Coverage](https://img.shields.io/badge/coverage-0%25-brightgreen)](#tests)
 
 > Test-first TypeScript utilities for Brazilian document and address validation, with mocked HTTP integration tests and CI coverage enforcement.
 
