@@ -1,11 +1,11 @@
 function validateCPF(cpf: string): boolean {
-  const cleanDocument = (cpf || "").trim().replace(/\D/g, "");
-  const validLength = cleanDocument.length === 11;
-  const allDigitsSame = /^(\d)\1{10}$/.test(cleanDocument);
+  const digitsOnly = (cpf || "").trim().replace(/\D/g, "");
+  const isValidLength = digitsOnly.length === 11;
+  const isAllDigitsSame = /^(\d)\1{10}$/.test(digitsOnly);
 
-  if (!validLength || allDigitsSame) return false;
+  if (!isValidLength || isAllDigitsSame) return false;
 
-  const documentAsNumbers = cleanDocument.split("").map(Number);
+  const documentAsNumbers = digitsOnly.split("").map(Number);
 
   const calculateCheckDigit = (factor: number): number => {
     const totalSum = documentAsNumbers
@@ -26,21 +26,21 @@ function validateCPF(cpf: string): boolean {
 }
 
 function formatCPF(cpf: string): string {
-  const rawCPF = unformatCPF(cpf);
-  const validCPF = validateCPF(rawCPF);
+  const digitsOnly = unformatCPF(cpf);
+  const validCPF = validateCPF(digitsOnly);
 
-  if (!rawCPF || !validCPF) return "";
+  if (!digitsOnly || !validCPF) return "";
 
-  return rawCPF.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, "$1.$2.$3-$4");
+  return digitsOnly.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, "$1.$2.$3-$4");
 }
 
 function unformatCPF(cpf: string): string {
-  const rawCPF = (cpf || "").trim().replace(/\D/g, "");
-  const validCPF = validateCPF(rawCPF);
+  const digitsOnly = (cpf || "").trim().replace(/\D/g, "");
+  const validCPF = validateCPF(digitsOnly);
 
-  if (!rawCPF || !validCPF) return "";
+  if (!digitsOnly || !validCPF) return "";
 
-  return rawCPF;
+  return digitsOnly;
 }
 
 export { validateCPF, formatCPF, unformatCPF };

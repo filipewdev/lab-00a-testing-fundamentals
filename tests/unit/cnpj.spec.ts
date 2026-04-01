@@ -16,7 +16,7 @@ const CNPJs = {
     withoutMask: "12345678000100",
     withInvalidLength: "1234567800019",
     withInvalidLengthAndMask: "12.345.678/0001-9",
-    withSameDigits: "11111111111111",
+    withSameDigits: "222222222222222",
     onlySpecialChars: "@#$%^&*()",
     onlyLetters: "ABCDEFGHIJklmn",
   },

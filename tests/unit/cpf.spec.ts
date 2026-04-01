@@ -16,7 +16,7 @@ const CPFs = {
     withMask: "123.456.789-00",
     withInvalidLength: "1234567890",
     withInvalidLengthAndMask: "123.456.789-0",
-    withSameDigits: "11111111111",
+    withSameDigits: "222222222222",
     onlySpecialChars: "@#$%^&*()",
     onlyLetters: "ABCDEFGHIJklmn",
   },
