@@ -1,8 +1,9 @@
 interface CEPResult {
-  street: string;
-  neighborhood: string;
-  city: string;
+  cep: string;
   state: string;
+  city: string;
+  neighborhood: string;
+  street: string;
 }
 
 function validateCEP(cep: string): boolean {
@@ -26,13 +27,29 @@ function unformatCEP(cep: string): string {
   return digitsOnly;
 }
 
-function lookupCEP(cep: string): Promise<CEPResult> {
-  return Promise.resolve({
-    street: "",
-    neighborhood: "",
-    city: "",
-    state: "",
-  });
+async function lookupCEP(cep: string): Promise<CEPResult> {
+  try {
+    if (!validateCEP(cep)) throw new Error("Invalid CEP");
+
+    const unformatedCEP = unformatCEP(cep);
+
+    const lookupURL = `https://brasilapi.com.br/api/cep/v1/${unformatedCEP}`;
+
+    const response = await fetch(lookupURL);
+    if (!response.ok) throw new Error("FCEP not found");
+
+    const data = await response.json();
+
+    return {
+      cep: data.cep,
+      state: data.state,
+      city: data.city,
+      neighborhood: data.neighborhood,
+      street: data.street,
+    };
+  } catch (error) {
+    return Promise.reject(new Error("Error looking up CEP: " + error));
+  }
 }
 
 export { validateCEP, formatCEP, unformatCEP, lookupCEP, CEPResult };
