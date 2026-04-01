@@ -1,83 +1,114 @@
-# Lab 00 A — [Testing fundamentals]
+# Lab 00-A — Testing Fundamentals
 
 ![CI](https://github.com/filipewdev/lab-00a-testing-fundamentals/actions/workflows/ci.yml/badge.svg)
-[![Coverage](https://img.shields.io/badge/coverage-0%25-brightgreen)](#tests)
+[![Coverage](https://img.shields.io/badge/coverage-XX%25-brightgreen)](#tests)
 
-> Test-first TypeScript utilities for Brazilian document and address validation, with mocked HTTP integration tests and CI coverage enforcement.
+> Test-first TypeScript utilities for Brazilian document and address validation,
+> with mocked HTTP integration tests and CI coverage enforcement.
 
 ---
 
 ## What I Built
 
-<!-- 2–4 sentences. What does the running system do?
-     What can someone actually do with it?
-     No bullet points — write prose. -->
+A TypeScript utility library (`@filipewdev/br-utils`) that validates and formats Brazilian documents and addresses — CPF, CNPJ, and CEP. The library exposes pure functions that can be used in any Node.js project. CEP lookups are backed by BrasilAPI and ViaCEP, with HTTP calls fully mocked in tests so the suite runs offline and deterministically.
 
 ## Architecture
-
-<!-- A simple ASCII or Mermaid diagram showing how the pieces connect.
-     Drawing this forces you to understand the system well enough to explain it.
-     Even 5 lines is better than nothing.
-
-     Example:
-     Browser → ws:// → Go Server → Hub (goroutine) → Room → Client channels
--->
-
 ```
-[your diagram here]
+@filipewdev/br-utils
+│
+├── src/
+│   ├── cpf.ts       → validate, format, strip
+│   ├── cnpj.ts      → validate, format, strip
+│   └── cep.ts       → lookup (BrasilAPI → ViaCEP fallback)
+│
+├── tests/
+│   ├── unit/        → pure logic, no I/O
+│   └── integration/ → mocked HTTP via vi.spyOn(global, 'fetch')
+│
+└── GitHub Actions CI
+    tsc --noEmit → eslint → vitest --coverage (≥85%)
 ```
 
 ## Running Locally
-
 ```bash
-# Prerequisites: Docker, [language runtime]
-docker compose up -d
+# Prerequisites: Node.js 20+, npm
 
-# Run
-[start command]
+# Install dependencies
+npm install
 
-# Test
-[test command]
+# Typecheck
+npx tsc --noEmit
 
-# Test with race detector / coverage / etc.
-[additional test commands]
+# Lint
+npx eslint .
+
+# Run tests
+npm test
+
+# Run tests with coverage
+npm run test:coverage
+
+# Watch mode during development
+npm run test:watch
 ```
 
 ## Key Concepts Learned
 
-<!-- The most important section. 3–5 concepts, each in plain language.
-     Rule: if you can't explain it without jargon, rewrite it.
-     Rule: include a "so what?" — why does this matter in practice? -->
+### # Scoped vs unscoped npm packages
 
-### [Concept name]
+The only real difference is the namespace prefix — `@filipewdev/br-utils` is scoped, `br-utils` is not. 
 
-[Your explanation in 2–5 sentences. Concrete over abstract — use numbers,
-comparisons, or analogies. Write as if explaining to someone technical
-but unfamiliar with this specific tool.]
+Scoping prevents naming on the global npm registry, which matters when publishing a library anyone could install. 
 
-### [Concept name]
+The practical gotcha: scoped packages publish as private by default, so you need `--access public` or `"publishConfig": { "access": "public" }` in `package.json` to make them publicly installable.
 
-[Explanation]
 
-### [Concept name]
+### # tsconfig.json is not just boilerplate
 
-[Explanation]
+Frameworks generate it for you so it's easy to ignore, but each field has real consequences.
+
+ - `strict: true` enables a family of type checks that catch entire classes of bugs. 
+ - `noUncheckedIndexedAccess` makes array access return `T | undefined` instead of silently the index exists. 
+ - `NodeNext` module resolution enforces explicit file extensions in imports. 
+ - For a library, `declaration: true` is non-negotiable — without it, TypeScript consumers of your package get no type information at all.
+
+The community-maintained bases at [tsconfig/bases](https://github.com/tsconfig/bases) are a good reference for sensible starting points per runtime.
+
+
+### # Test-first changes how you design APIs
+
+Writing tests before the implementation forces you to think about the public interface — what the function receives, what it returns, what it throws — before you think about how it works internally. 
+
+For a validation library this is particularly valuable: the test cases become the specification for every edge case (empty strings, wrong check digits, all-same-digit CPFs) before a single line of implementation exists.
+
+
+### # Vitest essentials
+
+Everything comes from one import: `describe`, `it`, `expect`, `beforeEach`, `vi`.
+
+ - `describe` groups related cases, `it` defines a single case, `expect` withmatchers (`toBe`, `toEqual`, `toThrow`, `toMatchObject`) asserts the outcome.
+ - `vi.spyOn(global, 'fetch')` replaces the real HTTP call with a controlled fake — this is what makes integration tests fast and offline-capable. 
+ - Test Filtering(`.todo`, `.fails`, `.skipIf`) controls execution per test. 
+ - Test Tags (definedin `vitest.config.ts`) are named categories with shared config like `timeout`.
+ - Annotations are per-test metadata for reporting only.
+
 
 ## Tests
 
-<!-- Describe your testing strategy, not a list of test names.
+<!-- Fill this in once the implementation is complete.
+     Describe your strategy, not a list of test names.
      What did you test? What did you deliberately not test and why?
-     What pattern did you use (unit, integration, testcontainers, mocks)?  -->
+     What pattern did you use for the HTTP mocking? -->
 
 ## What I Would Do Differently
 
-<!-- Honest reflection on one or two decisions you'd change.
-     This is the section that signals engineering maturity.
+<!-- Fill this in honestly at the end.
      "Nothing, it all went perfectly" is never the right answer. -->
 
 ## AWS Equivalent
 
-<!-- One paragraph connecting this lab's tool to its AWS managed equivalent.
+<!-- One paragraph connecting testing fundamentals and this library's
+     structure to AWS equivalents.
      Reference: docs/aws-context.md in labs-roadmap. -->
 
 ## Time Spent
@@ -93,26 +124,20 @@ but unfamiliar with this specific tool.]
 
 ---
 
-<!-- OPTIONAL SECTIONS — delete any that don't apply to this lab -->
-
 ## Open API Integration
 
-<!-- optional -->
+**API**: BrasilAPI — https://brasilapi.com.br/api/cep/v2/{cep}
+**Used for**: CEP address lookup (primary source)
+**Mocked in tests**: Yes — via `vi.spyOn(global, 'fetch')`
 
-**API**: [name + URL]
-**Used for**: [what it provides]
-**Mocked in tests**: [yes/no — and how]
-
-## Stretch Goal
-
-<!-- optional -->
-
-[What you built and what you learned from it beyond the base lab.]
+**API**: ViaCEP — https://viacep.com.br/ws/{cep}/json
+**Used for**: CEP address lookup (fallback)
+**Mocked in tests**: Yes — via `vi.spyOn(global, 'fetch')`
 
 ## References
 
-<!-- optional — links to docs, posts, or talks that helped -->
-
-- [Resource name](URL)
-
----
+- [Vitest documentation](https://vitest.dev)
+- [tsconfig/bases](https://github.com/tsconfig/bases)
+- [BrasilAPI](https://brasilapi.com.br)
+- [ViaCEP](https://viacep.com.br)
+- [Node.js modules documentation](https://nodejs.org/api/modules.html)
