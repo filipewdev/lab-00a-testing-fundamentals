@@ -5,12 +5,25 @@ interface CEPResult {
   state: string;
 }
 
+function validateCEP(cep: string): boolean {
+  const digitsOnly = (cep || "").trim().replace(/\D/g, "");
+  return digitsOnly.length === 8;
+}
+
 function formatCEP(cep: string): string {
-  return "";
+  const isCEPValid = validateCEP(cep);
+  if (!isCEPValid) return "";
+
+  const digitsOnly = (cep || "").trim().replace(/\D/g, "");
+  return digitsOnly.replace(/(\d{5})(\d{3})/, "$1-$2");
 }
 
 function unformatCEP(cep: string): string {
-  return "";
+  const isCEPValid = validateCEP(cep);
+  if (!isCEPValid) return "";
+
+  const digitsOnly = (cep || "").trim().replace(/\D/g, "");
+  return digitsOnly;
 }
 
 function lookupCEP(cep: string): Promise<CEPResult> {
@@ -22,4 +35,4 @@ function lookupCEP(cep: string): Promise<CEPResult> {
   });
 }
 
-export { formatCEP, unformatCEP, lookupCEP, CEPResult };
+export { validateCEP, formatCEP, unformatCEP, lookupCEP, CEPResult };

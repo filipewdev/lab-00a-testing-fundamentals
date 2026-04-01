@@ -1,12 +1,12 @@
 import { describe, expect, it } from "vitest";
-import { formatCEP, unformatCEP } from "../../src/cep";
+import { formatCEP, unformatCEP, validateCEP } from "../../src/cep";
 
 const CEPs = {
   valid: {
     unformatted: "12345678",
     formatted: "12345-678",
     withWhitespaces: "12345 - 678",
-    withSpecialChars: "12345@678",
+    withSpecialChars: "12345@678asA",
   },
   invalid: {
     empty: "",
@@ -17,6 +17,44 @@ const CEPs = {
     onlySpecialChars: "@#$%^&*()",
   },
 };
+
+describe("CEP validation", () => {
+  describe("should return true for valid CEPs", () => {
+    it("valid CEP without mask", () => {
+      expect(validateCEP(CEPs.valid.unformatted)).toBe(true);
+    });
+    it("valid CEP with mask", () => {
+      expect(validateCEP(CEPs.valid.formatted)).toBe(true);
+    });
+    it("valid CEP with whitespaces", () => {
+      expect(validateCEP(CEPs.valid.withWhitespaces)).toBe(true);
+    });
+    it("valid CEP with letter and special characters", () => {
+      expect(validateCEP(CEPs.valid.withSpecialChars)).toBe(true);
+    });
+  });
+
+  describe("should return false string for invalid CEPs", () => {
+    it("empty string", () => {
+      expect(validateCEP(CEPs.invalid.empty)).toBe(false);
+    });
+    it("whitespace string", () => {
+      expect(validateCEP(CEPs.invalid.whitespaces)).toBe(false);
+    });
+    it("CEP with too few digits", () => {
+      expect(validateCEP(CEPs.invalid.tooShort)).toBe(false);
+    });
+    it("CEP with too many digits", () => {
+      expect(validateCEP(CEPs.invalid.tooLong)).toBe(false);
+    });
+    it("string with only letters", () => {
+      expect(validateCEP(CEPs.invalid.onlyLetters)).toBe(false);
+    });
+    it("string with only special characters", () => {
+      expect(validateCEP(CEPs.invalid.onlySpecialChars)).toBe(false);
+    });
+  });
+});
 
 describe("CEP formatting", () => {
   describe("should format valid CEPs correctly", () => {
