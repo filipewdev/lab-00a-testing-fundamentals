@@ -20,7 +20,8 @@
   "main": "index.ts",
   "scripts": {
     "test": "vitest",
-    "coverage": "vitest run --coverage"
+    "coverage": "vitest run --coverage",
+    "lint": "eslint . --ext .ts"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
