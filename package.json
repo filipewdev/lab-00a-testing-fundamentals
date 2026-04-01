@@ -19,6 +19,7 @@
   "type": "module",
   "main": "index.ts",
   "scripts": {
+    "build": "tsc",
     "test": "vitest",
     "coverage": "vitest run --coverage",
     "lint": "eslint . --ext .ts"
