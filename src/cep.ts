@@ -28,28 +28,24 @@ function unformatCEP(cep: string): string {
 }
 
 async function lookupCEP(cep: string): Promise<CEPResult> {
-  try {
-    if (!validateCEP(cep)) throw new Error("Invalid CEP");
+  if (!validateCEP(cep)) throw new Error("Invalid CEP");
 
-    const unformatedCEP = unformatCEP(cep);
+  const unformatedCEP = unformatCEP(cep);
 
-    const lookupURL = `https://brasilapi.com.br/api/cep/v1/${unformatedCEP}`;
+  const lookupURL = `https://brasilapi.com.br/api/cep/v1/${unformatedCEP}`;
 
-    const response = await fetch(lookupURL);
-    if (!response.ok) throw new Error("FCEP not found");
+  const response = await fetch(lookupURL);
+  if (!response.ok) throw new Error("CEP not found");
 
-    const data = await response.json();
+  const data = await response.json();
 
-    return {
-      cep: data.cep,
-      state: data.state,
-      city: data.city,
-      neighborhood: data.neighborhood,
-      street: data.street,
-    };
-  } catch (error) {
-    return Promise.reject(new Error("Error looking up CEP: " + error));
-  }
+  return {
+    cep: data.cep,
+    state: data.state,
+    city: data.city,
+    neighborhood: data.neighborhood,
+    street: data.street,
+  };
 }
 
 export { validateCEP, formatCEP, unformatCEP, lookupCEP, CEPResult };

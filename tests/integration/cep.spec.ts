@@ -1,13 +1,13 @@
-import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { lookupCEP } from "../../src/cep";
 
 describe("CEP Lookup", () => {
   beforeEach(() => {
-    vi.stubGlobal("fetch", vi.fn());
+    vi.spyOn(globalThis, "fetch").mockImplementation(vi.fn());
   });
 
   afterEach(() => {
-    vi.unstubAllGlobals();
+    vi.restoreAllMocks();
   });
 
   it("should return correct data for a valid CEP", async () => {
