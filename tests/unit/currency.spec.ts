@@ -37,6 +37,14 @@ describe("Currency Parsing", () => {
     it("negative numbers", () => {
       expect(parseBRL("R$ -567,89")).toBe(-567.89);
     });
+
+    it("large numbers with multiple thousands separators", () => {
+      expect(parseBRL("R$ 1.234.567,89")).toBe(1234567.89);
+    });
+
+    it("negative numbers with thousands separators", () => {
+      expect(parseBRL("R$ -1.234,50")).toBe(-1234.5);
+    });
   });
 
   describe("should throw an error for invalid BRL format", () => {
