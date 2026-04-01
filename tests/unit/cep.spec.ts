@@ -20,118 +20,78 @@ const CEPs = {
 
 describe("CEP validation", () => {
   describe("should return true for valid CEPs", () => {
-    it("valid CEP without mask", () => {
-      expect(validateCEP(CEPs.valid.unformatted)).toBe(true);
-    });
-    it("valid CEP with mask", () => {
-      expect(validateCEP(CEPs.valid.formatted)).toBe(true);
-    });
-    it("valid CEP with whitespaces", () => {
-      expect(validateCEP(CEPs.valid.withWhitespaces)).toBe(true);
-    });
-    it("valid CEP with letter and special characters", () => {
-      expect(validateCEP(CEPs.valid.withSpecialChars)).toBe(true);
+    it.each([
+      ["unformatted",             CEPs.valid.unformatted],
+      ["formatted",               CEPs.valid.formatted],
+      ["with whitespaces",        CEPs.valid.withWhitespaces],
+      ["with special characters", CEPs.valid.withSpecialChars],
+    ])("%s", (_label, cep) => {
+      expect(validateCEP(cep)).toBe(true);
     });
   });
 
-  describe("should return false string for invalid CEPs", () => {
-    it("empty string", () => {
-      expect(validateCEP(CEPs.invalid.empty)).toBe(false);
-    });
-    it("whitespace string", () => {
-      expect(validateCEP(CEPs.invalid.whitespaces)).toBe(false);
-    });
-    it("CEP with too few digits", () => {
-      expect(validateCEP(CEPs.invalid.tooShort)).toBe(false);
-    });
-    it("CEP with too many digits", () => {
-      expect(validateCEP(CEPs.invalid.tooLong)).toBe(false);
-    });
-    it("string with only letters", () => {
-      expect(validateCEP(CEPs.invalid.onlyLetters)).toBe(false);
-    });
-    it("string with only special characters", () => {
-      expect(validateCEP(CEPs.invalid.onlySpecialChars)).toBe(false);
+  describe("should return false for invalid CEPs", () => {
+    it.each([
+      ["empty string",            CEPs.invalid.empty],
+      ["whitespace only",         CEPs.invalid.whitespaces],
+      ["too few digits",          CEPs.invalid.tooShort],
+      ["too many digits",         CEPs.invalid.tooLong],
+      ["only letters",            CEPs.invalid.onlyLetters],
+      ["only special characters", CEPs.invalid.onlySpecialChars],
+    ])("%s", (_label, cep) => {
+      expect(validateCEP(cep)).toBe(false);
     });
   });
 });
 
 describe("CEP formatting", () => {
   describe("should format valid CEPs correctly", () => {
-    it("valid CEP without mask", () => {
-      expect(formatCEP(CEPs.valid.unformatted)).toBe(CEPs.valid.formatted);
-    });
-    it("valid CEP with mask", () => {
-      expect(formatCEP(CEPs.valid.formatted)).toBe(CEPs.valid.formatted);
-    });
-    it("valid CEP with whitespaces", () => {
-      expect(formatCEP(CEPs.valid.withWhitespaces)).toBe(CEPs.valid.formatted);
-    });
-    it("valid CEP with special characters", () => {
-      expect(formatCEP(CEPs.valid.withSpecialChars)).toBe(CEPs.valid.formatted);
+    it.each([
+      ["unformatted",             CEPs.valid.unformatted],
+      ["already formatted",      CEPs.valid.formatted],
+      ["with whitespaces",       CEPs.valid.withWhitespaces],
+      ["with special characters", CEPs.valid.withSpecialChars],
+    ])("%s", (_label, cep) => {
+      expect(formatCEP(cep)).toBe(CEPs.valid.formatted);
     });
   });
 
   describe("should return empty string for invalid CEPs", () => {
-    it("empty string", () => {
-      expect(formatCEP(CEPs.invalid.empty)).toBe("");
-    });
-    it("whitespace string", () => {
-      expect(formatCEP(CEPs.invalid.whitespaces)).toBe("");
-    });
-    it("CEP with too few digits", () => {
-      expect(formatCEP(CEPs.invalid.tooShort)).toBe("");
-    });
-    it("CEP with too many digits", () => {
-      expect(formatCEP(CEPs.invalid.tooLong)).toBe("");
-    });
-    it("string with only letters", () => {
-      expect(formatCEP(CEPs.invalid.onlyLetters)).toBe("");
-    });
-    it("string with only special characters", () => {
-      expect(formatCEP(CEPs.invalid.onlySpecialChars)).toBe("");
+    it.each([
+      ["empty string",            CEPs.invalid.empty],
+      ["whitespace only",         CEPs.invalid.whitespaces],
+      ["too few digits",          CEPs.invalid.tooShort],
+      ["too many digits",         CEPs.invalid.tooLong],
+      ["only letters",            CEPs.invalid.onlyLetters],
+      ["only special characters", CEPs.invalid.onlySpecialChars],
+    ])("%s", (_label, cep) => {
+      expect(formatCEP(cep)).toBe("");
     });
   });
 });
 
 describe("CEP unformatting", () => {
   describe("should unformat valid CEPs correctly", () => {
-    it("valid CEP without mask", () => {
-      expect(unformatCEP(CEPs.valid.unformatted)).toBe(CEPs.valid.unformatted);
-    });
-    it("valid CEP with mask", () => {
-      expect(unformatCEP(CEPs.valid.formatted)).toBe(CEPs.valid.unformatted);
-    });
-    it("valid CEP with whitespaces", () => {
-      expect(unformatCEP(CEPs.valid.withWhitespaces)).toBe(
-        CEPs.valid.unformatted,
-      );
-    });
-    it("valid CEP with special characters", () => {
-      expect(unformatCEP(CEPs.valid.withSpecialChars)).toBe(
-        CEPs.valid.unformatted,
-      );
+    it.each([
+      ["unformatted",             CEPs.valid.unformatted],
+      ["formatted",               CEPs.valid.formatted],
+      ["with whitespaces",       CEPs.valid.withWhitespaces],
+      ["with special characters", CEPs.valid.withSpecialChars],
+    ])("%s", (_label, cep) => {
+      expect(unformatCEP(cep)).toBe(CEPs.valid.unformatted);
     });
   });
 
   describe("should return empty string for invalid CEPs", () => {
-    it("empty string", () => {
-      expect(unformatCEP(CEPs.invalid.empty)).toBe("");
-    });
-    it("whitespace string", () => {
-      expect(unformatCEP(CEPs.invalid.whitespaces)).toBe("");
-    });
-    it("CEP with too few digits", () => {
-      expect(unformatCEP(CEPs.invalid.tooShort)).toBe("");
-    });
-    it("CEP with too many digits", () => {
-      expect(unformatCEP(CEPs.invalid.tooLong)).toBe("");
-    });
-    it("string with only letters", () => {
-      expect(unformatCEP(CEPs.invalid.onlyLetters)).toBe("");
-    });
-    it("string with only special characters", () => {
-      expect(unformatCEP(CEPs.invalid.onlySpecialChars)).toBe("");
+    it.each([
+      ["empty string",            CEPs.invalid.empty],
+      ["whitespace only",         CEPs.invalid.whitespaces],
+      ["too few digits",          CEPs.invalid.tooShort],
+      ["too many digits",         CEPs.invalid.tooLong],
+      ["only letters",            CEPs.invalid.onlyLetters],
+      ["only special characters", CEPs.invalid.onlySpecialChars],
+    ])("%s", (_label, cep) => {
+      expect(unformatCEP(cep)).toBe("");
     });
   });
 });

@@ -24,133 +24,83 @@ const CPFs = {
 
 describe("CPF Validation", () => {
   describe("should return true for valid CPFs", () => {
-    it("valid CPF without mask", () => {
-      expect(validateCPF(CPFs.valid.withoutMask)).toBe(true);
-    });
-    it("valid CPF with mask", () => {
-      expect(validateCPF(CPFs.valid.withMask)).toBe(true);
-    });
-    it("valid CPF with whitespace", () => {
-      expect(validateCPF(CPFs.valid.withWhitespace)).toBe(true);
-    });
-    it("valid CPF with letters and special characters", () => {
-      expect(validateCPF(CPFs.valid.withSpecialChars)).toBe(true);
+    it.each([
+      ["unformatted",             CPFs.valid.withoutMask],
+      ["formatted",               CPFs.valid.withMask],
+      ["with whitespace",         CPFs.valid.withWhitespace],
+      ["with special characters", CPFs.valid.withSpecialChars],
+    ])("%s", (_label, cpf) => {
+      expect(validateCPF(cpf)).toBe(true);
     });
   });
 
   describe("should return false for invalid CPFs", () => {
-    it("empty string", () => {
-      expect(validateCPF(CPFs.invalid.empty)).toBe(false);
-    });
-    it("string with only whitespace", () => {
-      expect(validateCPF(CPFs.invalid.whitespace)).toBe(false);
-    });
-    it("string with only special characters", () => {
-      expect(validateCPF(CPFs.invalid.onlySpecialChars)).toBe(false);
-    });
-    it("string with only letters", () => {
-      expect(validateCPF(CPFs.invalid.onlyLetters)).toBe(false);
-    });
-    it("invalid CPF without mask", () => {
-      expect(validateCPF(CPFs.invalid.withoutMask)).toBe(false);
-    });
-    it("invalid CPF with mask", () => {
-      expect(validateCPF(CPFs.invalid.withMask)).toBe(false);
-    });
-    it("invalid CPF with all digits the same", () => {
-      expect(validateCPF(CPFs.invalid.withSameDigits)).toBe(false);
-    });
-    it("invalid CPF with invalid length", () => {
-      expect(validateCPF(CPFs.invalid.withInvalidLength)).toBe(false);
-    });
-    it("invalid CPF with invalid length and mask", () => {
-      expect(validateCPF(CPFs.invalid.withInvalidLengthAndMask)).toBe(false);
-    });
-    it("CNPJ instead of CPF", () => {
-      expect(validateCPF(CPFs.valid.CNPJ)).toBe(false);
+    it.each([
+      ["empty string",                CPFs.invalid.empty],
+      ["whitespace only",             CPFs.invalid.whitespace],
+      ["only special characters",     CPFs.invalid.onlySpecialChars],
+      ["only letters",                CPFs.invalid.onlyLetters],
+      ["wrong check digits",          CPFs.invalid.withoutMask],
+      ["wrong check digits (masked)", CPFs.invalid.withMask],
+      ["all same digits",             CPFs.invalid.withSameDigits],
+      ["too short",                   CPFs.invalid.withInvalidLength],
+      ["too short (masked)",          CPFs.invalid.withInvalidLengthAndMask],
+      ["CNPJ instead of CPF",         CPFs.valid.CNPJ],
+    ])("%s", (_label, cpf) => {
+      expect(validateCPF(cpf)).toBe(false);
     });
   });
 });
 
 describe("CPF formatting", () => {
   describe("should format valid CPFs correctly", () => {
-    it("valid CPF without mask", () => {
-      expect(formatCPF(CPFs.valid.withoutMask)).toBe(CPFs.valid.withMask);
-    });
-    it("valid CPF already formatted", () => {
-      expect(formatCPF(CPFs.valid.withMask)).toBe(CPFs.valid.withMask);
-    });
-    it("valid CPF with whitespace", () => {
-      expect(formatCPF(CPFs.valid.withWhitespace)).toBe(CPFs.valid.withMask);
-    });
-    it("valid CPF with letters and special characters", () => {
-      expect(formatCPF(CPFs.valid.withSpecialChars)).toBe(CPFs.valid.withMask);
+    it.each([
+      ["unformatted",             CPFs.valid.withoutMask],
+      ["already formatted",      CPFs.valid.withMask],
+      ["with whitespace",        CPFs.valid.withWhitespace],
+      ["with special characters", CPFs.valid.withSpecialChars],
+    ])("%s", (_label, cpf) => {
+      expect(formatCPF(cpf)).toBe(CPFs.valid.withMask);
     });
   });
 
   describe("should return an empty string for invalid CPFs", () => {
-    it("empty string", () => {
-      expect(formatCPF(CPFs.invalid.empty)).toBe("");
-    });
-    it("string with only whitespace", () => {
-      expect(formatCPF(CPFs.invalid.whitespace)).toBe("");
-    });
-    it("string with only special characters", () => {
-      expect(formatCPF(CPFs.invalid.onlySpecialChars)).toBe("");
-    });
-    it("invalid CPF without mask", () => {
-      expect(formatCPF(CPFs.invalid.withoutMask)).toBe("");
-    });
-    it("invalid CPF with mask", () => {
-      expect(formatCPF(CPFs.invalid.withMask)).toBe("");
-    });
-    it("CNPJ instead of CPF", () => {
-      expect(formatCPF(CPFs.valid.CNPJ)).toBe("");
+    it.each([
+      ["empty string",            CPFs.invalid.empty],
+      ["whitespace only",         CPFs.invalid.whitespace],
+      ["only special characters", CPFs.invalid.onlySpecialChars],
+      ["wrong check digits",      CPFs.invalid.withoutMask],
+      ["wrong check digits (masked)", CPFs.invalid.withMask],
+      ["CNPJ instead of CPF",     CPFs.valid.CNPJ],
+    ])("%s", (_label, cpf) => {
+      expect(formatCPF(cpf)).toBe("");
     });
   });
 });
 
 describe("CPF unformatting", () => {
   describe("should unformat valid CPFs correctly", () => {
-    it("valid CPF with mask", () => {
-      expect(unformatCPF(CPFs.valid.withMask)).toBe(CPFs.valid.withoutMask);
-    });
-    it("valid CPF already unformatted", () => {
-      expect(unformatCPF(CPFs.valid.withoutMask)).toBe(CPFs.valid.withoutMask);
-    });
-    it("valid CPF with whitespace", () => {
-      expect(unformatCPF(CPFs.valid.withWhitespace)).toBe(
-        CPFs.valid.withoutMask,
-      );
-    });
-    it("valid CPF with letters and special characters", () => {
-      expect(unformatCPF(CPFs.valid.withSpecialChars)).toBe(
-        CPFs.valid.withoutMask,
-      );
+    it.each([
+      ["formatted",               CPFs.valid.withMask],
+      ["already unformatted",     CPFs.valid.withoutMask],
+      ["with whitespace",         CPFs.valid.withWhitespace],
+      ["with special characters", CPFs.valid.withSpecialChars],
+    ])("%s", (_label, cpf) => {
+      expect(unformatCPF(cpf)).toBe(CPFs.valid.withoutMask);
     });
   });
 
   describe("should return an empty string for invalid CPFs", () => {
-    it("empty string", () => {
-      expect(unformatCPF(CPFs.invalid.empty)).toBe("");
-    });
-    it("string with only whitespace", () => {
-      expect(unformatCPF(CPFs.invalid.whitespace)).toBe("");
-    });
-    it("string with only special characters", () => {
-      expect(unformatCPF(CPFs.invalid.onlySpecialChars)).toBe("");
-    });
-    it("string with only letters", () => {
-      expect(unformatCPF(CPFs.invalid.onlyLetters)).toBe("");
-    });
-    it("invalid CPF without mask", () => {
-      expect(unformatCPF(CPFs.invalid.withoutMask)).toBe("");
-    });
-    it("invalid CPF with mask", () => {
-      expect(unformatCPF(CPFs.invalid.withMask)).toBe("");
-    });
-    it("CNPJ instead of CPF", () => {
-      expect(unformatCPF(CPFs.valid.CNPJ)).toBe("");
+    it.each([
+      ["empty string",            CPFs.invalid.empty],
+      ["whitespace only",         CPFs.invalid.whitespace],
+      ["only special characters", CPFs.invalid.onlySpecialChars],
+      ["only letters",            CPFs.invalid.onlyLetters],
+      ["wrong check digits",      CPFs.invalid.withoutMask],
+      ["wrong check digits (masked)", CPFs.invalid.withMask],
+      ["CNPJ instead of CPF",     CPFs.valid.CNPJ],
+    ])("%s", (_label, cpf) => {
+      expect(unformatCPF(cpf)).toBe("");
     });
   });
 });

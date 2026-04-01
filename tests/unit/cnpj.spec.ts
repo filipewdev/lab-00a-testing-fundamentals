@@ -24,135 +24,83 @@ const CNPJs = {
 
 describe("CNPJ Validation", () => {
   describe("should return true for valid CNPJs", () => {
-    it("valid CNPJ without mask", () => {
-      expect(validateCNPJ(CNPJs.valid.withoutMask)).toBe(true);
-    });
-    it("valid CNPJ with mask", () => {
-      expect(validateCNPJ(CNPJs.valid.withMask)).toBe(true);
-    });
-    it("valid CNPJ with whitespace", () => {
-      expect(validateCNPJ(CNPJs.valid.withWhitespace)).toBe(true);
-    });
-    it("valid CNPJ with letter and special characters", () => {
-      expect(validateCNPJ(CNPJs.valid.withSpecialChars)).toBe(true);
+    it.each([
+      ["unformatted",             CNPJs.valid.withoutMask],
+      ["formatted",               CNPJs.valid.withMask],
+      ["with whitespace",         CNPJs.valid.withWhitespace],
+      ["with special characters", CNPJs.valid.withSpecialChars],
+    ])("%s", (_label, cnpj) => {
+      expect(validateCNPJ(cnpj)).toBe(true);
     });
   });
 
   describe("should return false for invalid CNPJs", () => {
-    it("empty string", () => {
-      expect(validateCNPJ(CNPJs.invalid.empty)).toBe(false);
-    });
-    it("string with only whitespace", () => {
-      expect(validateCNPJ(CNPJs.invalid.whitespace)).toBe(false);
-    });
-    it("string with only special characters", () => {
-      expect(validateCNPJ(CNPJs.invalid.onlySpecialChars)).toBe(false);
-    });
-    it("string with only letters", () => {
-      expect(validateCNPJ(CNPJs.invalid.onlyLetters)).toBe(false);
-    });
-    it("invalid CNPJ without mask", () => {
-      expect(validateCNPJ(CNPJs.invalid.withoutMask)).toBe(false);
-    });
-    it("invalid CNPJ with mask", () => {
-      expect(validateCNPJ(CNPJs.invalid.withMask)).toBe(false);
-    });
-    it("invalid CNPJ with all digits the same", () => {
-      expect(validateCNPJ(CNPJs.invalid.withSameDigits)).toBe(false);
-    });
-    it("invalid CNPJ with invalid length", () => {
-      expect(validateCNPJ(CNPJs.invalid.withInvalidLength)).toBe(false);
-    });
-    it("invalid CNPJ with invalid length and mask", () => {
-      expect(validateCNPJ(CNPJs.invalid.withInvalidLengthAndMask)).toBe(false);
-    });
-    it("CPF instead of CNPJ", () => {
-      expect(validateCNPJ(CNPJs.valid.CPF)).toBe(false);
+    it.each([
+      ["empty string",                CNPJs.invalid.empty],
+      ["whitespace only",             CNPJs.invalid.whitespace],
+      ["only special characters",     CNPJs.invalid.onlySpecialChars],
+      ["only letters",                CNPJs.invalid.onlyLetters],
+      ["wrong check digits",          CNPJs.invalid.withoutMask],
+      ["wrong check digits (masked)", CNPJs.invalid.withMask],
+      ["all same digits",             CNPJs.invalid.withSameDigits],
+      ["too short",                   CNPJs.invalid.withInvalidLength],
+      ["too short (masked)",          CNPJs.invalid.withInvalidLengthAndMask],
+      ["CPF instead of CNPJ",         CNPJs.valid.CPF],
+    ])("%s", (_label, cnpj) => {
+      expect(validateCNPJ(cnpj)).toBe(false);
     });
   });
 });
 
 describe("CNPJ formatting", () => {
   describe("should format valid CNPJs correctly", () => {
-    it("valid CNPJ without mask", () => {
-      expect(formatCNPJ(CNPJs.valid.withoutMask)).toBe(CNPJs.valid.withMask);
-    });
-    it("valid CNPJ already formatted", () => {
-      expect(formatCNPJ(CNPJs.valid.withMask)).toBe(CNPJs.valid.withMask);
-    });
-    it("valid CNPJ with whitespace", () => {
-      expect(formatCNPJ(CNPJs.valid.withWhitespace)).toBe(CNPJs.valid.withMask);
-    });
-    it("valid CNPJ with letter and special characters", () => {
-      expect(formatCNPJ(CNPJs.valid.withSpecialChars)).toBe(
-        CNPJs.valid.withMask,
-      );
+    it.each([
+      ["unformatted",             CNPJs.valid.withoutMask],
+      ["already formatted",      CNPJs.valid.withMask],
+      ["with whitespace",        CNPJs.valid.withWhitespace],
+      ["with special characters", CNPJs.valid.withSpecialChars],
+    ])("%s", (_label, cnpj) => {
+      expect(formatCNPJ(cnpj)).toBe(CNPJs.valid.withMask);
     });
   });
 
   describe("should return empty string for invalid CNPJs", () => {
-    it("empty string", () => {
-      expect(formatCNPJ(CNPJs.invalid.empty)).toBe("");
-    });
-    it("string with only whitespace", () => {
-      expect(formatCNPJ(CNPJs.invalid.whitespace)).toBe("");
-    });
-    it("string with only special characters", () => {
-      expect(formatCNPJ(CNPJs.invalid.onlySpecialChars)).toBe("");
-    });
-    it("string with only letters", () => {
-      expect(formatCNPJ(CNPJs.invalid.onlyLetters)).toBe("");
-    });
-    it("invalid CNPJ without mask", () => {
-      expect(formatCNPJ(CNPJs.invalid.withoutMask)).toBe("");
-    });
-    it("invalid CNPJ with mask", () => {
-      expect(formatCNPJ(CNPJs.invalid.withMask)).toBe("");
-    });
-    it("CPF instead of CNPJ", () => {
-      expect(formatCNPJ(CNPJs.valid.CPF)).toBe("");
+    it.each([
+      ["empty string",            CNPJs.invalid.empty],
+      ["whitespace only",         CNPJs.invalid.whitespace],
+      ["only special characters", CNPJs.invalid.onlySpecialChars],
+      ["only letters",            CNPJs.invalid.onlyLetters],
+      ["wrong check digits",      CNPJs.invalid.withoutMask],
+      ["wrong check digits (masked)", CNPJs.invalid.withMask],
+      ["CPF instead of CNPJ",     CNPJs.valid.CPF],
+    ])("%s", (_label, cnpj) => {
+      expect(formatCNPJ(cnpj)).toBe("");
     });
   });
 });
 
 describe("CNPJ unformatting", () => {
   describe("should unformat valid CNPJs correctly", () => {
-    it("valid CNPJ with mask", () => {
-      expect(unformatCNPJ(CNPJs.valid.withMask)).toBe(CNPJs.valid.withoutMask);
-    });
-    it("valid CNPJ already unformatted", () => {
-      expect(unformatCNPJ(CNPJs.valid.withoutMask)).toBe(
-        CNPJs.valid.withoutMask,
-      );
-    });
-    it("valid CNPJ with letter and special characters", () => {
-      expect(unformatCNPJ(CNPJs.valid.withSpecialChars)).toBe(
-        CNPJs.valid.withoutMask,
-      );
+    it.each([
+      ["formatted",               CNPJs.valid.withMask],
+      ["already unformatted",     CNPJs.valid.withoutMask],
+      ["with special characters", CNPJs.valid.withSpecialChars],
+    ])("%s", (_label, cnpj) => {
+      expect(unformatCNPJ(cnpj)).toBe(CNPJs.valid.withoutMask);
     });
   });
 
   describe("should return empty string for invalid CNPJs", () => {
-    it("empty string", () => {
-      expect(unformatCNPJ(CNPJs.invalid.empty)).toBe("");
-    });
-    it("string with only whitespace", () => {
-      expect(unformatCNPJ(CNPJs.invalid.whitespace)).toBe("");
-    });
-    it("string with only special characters", () => {
-      expect(unformatCNPJ(CNPJs.invalid.onlySpecialChars)).toBe("");
-    });
-    it("string with only letters", () => {
-      expect(unformatCNPJ(CNPJs.invalid.onlyLetters)).toBe("");
-    });
-    it("invalid CNPJ without mask", () => {
-      expect(unformatCNPJ(CNPJs.invalid.withoutMask)).toBe("");
-    });
-    it("invalid CNPJ with mask", () => {
-      expect(unformatCNPJ(CNPJs.invalid.withMask)).toBe("");
-    });
-    it("CPF instead of CNPJ", () => {
-      expect(unformatCNPJ(CNPJs.valid.CPF)).toBe("");
+    it.each([
+      ["empty string",            CNPJs.invalid.empty],
+      ["whitespace only",         CNPJs.invalid.whitespace],
+      ["only special characters", CNPJs.invalid.onlySpecialChars],
+      ["only letters",            CNPJs.invalid.onlyLetters],
+      ["wrong check digits",      CNPJs.invalid.withoutMask],
+      ["wrong check digits (masked)", CNPJs.invalid.withMask],
+      ["CPF instead of CNPJ",     CNPJs.valid.CPF],
+    ])("%s", (_label, cnpj) => {
+      expect(unformatCNPJ(cnpj)).toBe("");
     });
   });
 });
