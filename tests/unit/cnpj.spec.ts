@@ -6,7 +6,7 @@ const CNPJs = {
     withMask: "12.345.678/0001-95",
     withoutMask: "12345678000195",
     withWhitespace: "  12345678000195  ",
-    withWhitespaceAndSpecialChars: "  @#$%^&*()  12345678000195  ",
+    withSpecialChars: " @#$%^&*()12345678000195asASd",
     CPF: "12345678909",
   },
   invalid: {
@@ -16,10 +16,9 @@ const CNPJs = {
     withoutMask: "12345678000100",
     withInvalidLength: "1234567800019",
     withInvalidLengthAndMask: "12.345.678/0001-9",
-    withLetters: "1234567800019A",
-    withSpecialChars: "12.345.678/0001-9@",
     withSameDigits: "11111111111111",
-    withOnlySpecialChars: "@#$%^&*()",
+    onlySpecialChars: "@#$%^&*()",
+    onlyLetters: "ABCDEFGHIJklmn",
   },
 };
 
@@ -34,10 +33,8 @@ describe("CNPJ Validation", () => {
     it("valid CNPJ with whitespace", () => {
       expect(validateCNPJ(CNPJs.valid.withWhitespace)).toBe(true);
     });
-    it("valid CNPJ with whitespace and special characters", () => {
-      expect(validateCNPJ(CNPJs.valid.withWhitespaceAndSpecialChars)).toBe(
-        true,
-      );
+    it("valid CNPJ with letter and special characters", () => {
+      expect(validateCNPJ(CNPJs.valid.withSpecialChars)).toBe(true);
     });
   });
 
@@ -49,19 +46,16 @@ describe("CNPJ Validation", () => {
       expect(validateCNPJ(CNPJs.invalid.whitespace)).toBe(false);
     });
     it("string with only special characters", () => {
-      expect(validateCNPJ(CNPJs.invalid.withOnlySpecialChars)).toBe(false);
+      expect(validateCNPJ(CNPJs.invalid.onlySpecialChars)).toBe(false);
+    });
+    it("string with only letters", () => {
+      expect(validateCNPJ(CNPJs.invalid.onlyLetters)).toBe(false);
     });
     it("invalid CNPJ without mask", () => {
       expect(validateCNPJ(CNPJs.invalid.withoutMask)).toBe(false);
     });
     it("invalid CNPJ with mask", () => {
       expect(validateCNPJ(CNPJs.invalid.withMask)).toBe(false);
-    });
-    it("invalid CNPJ with letters", () => {
-      expect(validateCNPJ(CNPJs.invalid.withLetters)).toBe(false);
-    });
-    it("invalid CNPJ with special characters", () => {
-      expect(validateCNPJ(CNPJs.invalid.withSpecialChars)).toBe(false);
     });
     it("invalid CNPJ with all digits the same", () => {
       expect(validateCNPJ(CNPJs.invalid.withSameDigits)).toBe(false);
@@ -89,8 +83,8 @@ describe("CNPJ formatting", () => {
     it("valid CNPJ with whitespace", () => {
       expect(formatCNPJ(CNPJs.valid.withWhitespace)).toBe(CNPJs.valid.withMask);
     });
-    it("valid CNPJ with whitespace and special characters", () => {
-      expect(formatCNPJ(CNPJs.valid.withWhitespaceAndSpecialChars)).toBe(
+    it("valid CNPJ with letter and special characters", () => {
+      expect(formatCNPJ(CNPJs.valid.withSpecialChars)).toBe(
         CNPJs.valid.withMask,
       );
     });
@@ -104,7 +98,10 @@ describe("CNPJ formatting", () => {
       expect(formatCNPJ(CNPJs.invalid.whitespace)).toBe("");
     });
     it("string with only special characters", () => {
-      expect(formatCNPJ(CNPJs.invalid.withOnlySpecialChars)).toBe("");
+      expect(formatCNPJ(CNPJs.invalid.onlySpecialChars)).toBe("");
+    });
+    it("string with only letters", () => {
+      expect(formatCNPJ(CNPJs.invalid.onlyLetters)).toBe("");
     });
     it("invalid CNPJ without mask", () => {
       expect(formatCNPJ(CNPJs.invalid.withoutMask)).toBe("");
@@ -128,8 +125,8 @@ describe("CNPJ unformatting", () => {
         CNPJs.valid.withoutMask,
       );
     });
-    it("valid CNPJ with extra characters", () => {
-      expect(unformatCNPJ(CNPJs.valid.withWhitespaceAndSpecialChars)).toBe(
+    it("valid CNPJ with letter and special characters", () => {
+      expect(unformatCNPJ(CNPJs.valid.withSpecialChars)).toBe(
         CNPJs.valid.withoutMask,
       );
     });
@@ -143,7 +140,10 @@ describe("CNPJ unformatting", () => {
       expect(unformatCNPJ(CNPJs.invalid.whitespace)).toBe("");
     });
     it("string with only special characters", () => {
-      expect(unformatCNPJ(CNPJs.invalid.withOnlySpecialChars)).toBe("");
+      expect(unformatCNPJ(CNPJs.invalid.onlySpecialChars)).toBe("");
+    });
+    it("string with only letters", () => {
+      expect(unformatCNPJ(CNPJs.invalid.onlyLetters)).toBe("");
     });
     it("invalid CNPJ without mask", () => {
       expect(unformatCNPJ(CNPJs.invalid.withoutMask)).toBe("");
