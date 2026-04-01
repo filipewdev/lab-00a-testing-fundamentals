@@ -20,9 +20,10 @@
   "main": "index.ts",
   "scripts": {
     "build": "tsc",
+    "lint": "eslint . --ext .ts",
     "test": "vitest",
-    "coverage": "vitest run --coverage",
-    "lint": "eslint . --ext .ts"
+    "test:coverage": "vitest run --coverage",
+    "test:watch": "vitest watch"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
