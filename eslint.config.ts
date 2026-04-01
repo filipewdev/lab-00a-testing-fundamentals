@@ -12,16 +12,15 @@ export default defineConfig([
     languageOptions: {
       globals: globals.node,
     },
-  },
-  ...tseslint.configs.recommended,
-  {
     rules: {
       "@typescript-eslint/no-explicit-any": "error",
       "@typescript-eslint/explicit-function-return-type": "error",
       ...security.configs.recommended.rules,
     },
   },
+  ...tseslint.configs.recommended,
+
   {
-    ignores: ["dist/**", "node_modules/**", "tests/**"],
+    ignores: ["dist/**", "node_modules/**", "tests/**", "coverage/**"],
   },
 ]);
