@@ -18,8 +18,12 @@
   "author": "Filipe Grangeiro <filipew.dev@gmail.com>",
   "type": "module",
   "main": "index.ts",
+  "engines": {
+    "node": ">=22.12"
+  },
   "scripts": {
     "build": "tsc",
+    "typecheck": "tsc --noEmit",
     "lint": "eslint . --ext .ts",
     "test": "vitest",
     "test:coverage": "vitest run --coverage",

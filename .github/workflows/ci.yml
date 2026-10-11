@@ -1,30 +1,59 @@
-# This workflow runs on Node.js 20.x, 22.x, and 24.x.
-# Lint and typecheck run on all versions.
-# Coverage (with threshold enforcement) runs only on 24.x to avoid duplicate reports.
-# All other versions run the test suite without coverage.
+# Quality gates for every push and PR to main, in order:
+#   install (npm ci) → audit → typecheck → lint → test (+ coverage) → build
+# Any failing step stops the job, so later gates never run on broken code.
 name: Node.js CI
 on:
-  push:
-    branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
+  push: { branches: [main] }
+  pull_request: { branches: [main] }
+
+# Least privilege: the job only needs to read the code. Without this block the
+# GITHUB_TOKEN gets whatever the repo/org default is (read here, but it can be
+# changed to write), so stating it keeps the workflow safe either way.
+permissions:
+  contents: read
+
+# A new push to the same branch/PR cancels the run still in progress for it.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   build:
     runs-on: ubuntu-latest
     strategy:
+      # Let every Node version finish, so one failure shows whether it is
+      # version-specific or affects all of them.
+      fail-fast: false
       matrix:
-        node-version: [20.x, 22.x, 24.x]
+        # Supported LTS lines; keep in sync with "engines" in package.json.
+        # Node 20 was dropped: EOL since April 2026 and Vitest 5 needs >= 22.12.
+        # TODO: add 26.x once it becomes LTS (expected late October 2026).
+        node-version: [22.x, 24.x]
     steps:
-    - uses: actions/checkout@v4
-    - name: Use Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v4
-      with:
-        node-version: ${{ matrix.node-version }}
-        cache: 'npm'
-    - run: npm install
-    - run: npm run lint
-    - run: npm run build --if-present
-    - run: npm run test:coverage
-      if: matrix.node-version == '24.x'
-    - run: npm test
-      if: matrix.node-version != '24.x'
+      # Actions are pinned to a full commit SHA, not a tag: tags can be moved to
+      # point at different code, a SHA cannot. The comment records which
+      # version the SHA is; Dependabot proposes updates (.github/dependabot.yml).
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        # Don't keep the token on disk after checkout, where later steps
+        # (e.g. npm install scripts) could read it; this job never pushes.
+        with: { persist-credentials: false }
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: npm
+      # npm ci installs exactly what package-lock.json says and fails if it is
+      # out of sync with package.json; npm install would silently rewrite it.
+      - run: npm ci
+      # Gate only on what ships to consumers (dependencies, not devDependencies).
+      # Dev tooling advisories are handled by Dependabot PRs instead of
+      # breaking every build.
+      - run: npm audit --omit=dev --audit-level=high
+      - run: npm run typecheck
+      - run: npm run lint
+      # Coverage (and its thresholds in vitest.config.ts) runs once, on the
+      # newest Node; the other versions only check that the tests pass there.
+      - run: npm run test:coverage
+        if: matrix.node-version == '24.x'
+      - run: npm test
+        if: matrix.node-version != '24.x'
+      - run: npm run build

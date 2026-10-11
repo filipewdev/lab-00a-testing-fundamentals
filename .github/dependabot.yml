@@ -1,0 +1,99 @@
+# Dependabot version updates: opens PRs that bump dependencies and pinned
+# GitHub Actions. Each PR goes through CI (.github/workflows/ci.yml), so an
+# update only lands if typecheck, lint, tests and coverage still pass.
+#
+# Security updates (PRs for known vulnerabilities) are a separate repo setting,
+# under the repo's security settings: Dependabot alerts / security updates.
+#
+# Reference: https://docs.github.com/en/code-security/dependabot/working-with-dependabot/dependabot-options-reference
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      time: "09:00"
+      timezone: America/Sao_Paulo
+
+    # Wait 7 days after a release before proposing it. Hijacked-account
+    # releases on npm are often caught and pulled within days, so a short
+    # delay keeps them out of the lockfile. Security updates skip this.
+    cooldown:
+      default-days: 7
+
+    # Set explicitly instead of "auto", which guesses app vs library.
+    # "increase" moves the minimum version up to the one CI just tested, which
+    # suits devDependencies (our own toolchain, never installed by consumers).
+    # TODO: when the library gains runtime "dependencies", revisit this.
+    # Bumping their minimum forces consumers to upgrade too, so
+    # "increase-if-necessary" (keep the range, only widen when needed) is
+    # usually the better choice for a library.
+    versioning-strategy: increase
+
+    # Conventional commits, e.g. "chore(deps-dev): bump vitest from 5.0.3 to 5.1.0".
+    commit-message:
+      prefix: chore
+      prefix-development: chore
+      include: scope
+
+    # Groups don't overlap (dev-minor-patch excludes the other two), so each
+    # dependency has exactly one home. Updates outside every group, such as
+    # a lint or TypeScript major, get their own PR to be reviewed alone.
+    groups:
+      # @vitest/coverage-v8 peer-depends on the exact same vitest version, so
+      # they must always move together, majors included.
+      vitest:
+        patterns: ["vitest", "@vitest/*"]
+      # Lint toolchain: only used together, so update and test it together.
+      lint:
+        patterns:
+          - "eslint"
+          - "@eslint/*"
+          - "eslint-plugin-*"
+          - "typescript-eslint"
+          - "globals"
+          - "jiti"
+        update-types: [minor, patch]
+      # Everything else in devDependencies: one PR for low-risk bumps.
+      dev-minor-patch:
+        dependency-type: development
+        update-types: [minor, patch]
+        exclude-patterns:
+          - "vitest"
+          - "@vitest/*"
+          - "eslint"
+          - "@eslint/*"
+          - "eslint-plugin-*"
+          - "typescript-eslint"
+          - "globals"
+          - "jiti"
+
+    ignore:
+      # typescript-eslint supports only typescript "<6.1.0" (peer dependency).
+      # A newer TypeScript would fail npm ci with a peer conflict.
+      # Remove once typescript-eslint widens its range.
+      - dependency-name: typescript
+        versions: [">=6.1.0"]
+      # @types/node must match the oldest Node we support (engines: >=22.12),
+      # not the newest. Types for a newer Node would let us call APIs that
+      # crash on Node 22. Bump the major together with "engines".
+      - dependency-name: "@types/node"
+        update-types: ["version-update:semver-major"]
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      time: "09:00"
+      timezone: America/Sao_Paulo
+    # e.g. "ci(deps): bump actions/checkout from 7.0.1 to 7.1.0".
+    # ci.yml pins actions by SHA; without these PRs the pins would never move.
+    # On the first PR, check that the "# vX.Y.Z" comment was updated too.
+    commit-message:
+      prefix: ci
+      include: scope
+    groups:
+      actions:
+        patterns: ["*"]
